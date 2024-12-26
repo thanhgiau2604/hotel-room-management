@@ -83,6 +83,15 @@ const onFormSubmit = ({ valid }: { valid: any }) => {
     });
   }
 };
+
+// const { $roomsRef } = useNuxtApp();
+
+// const roomsRef = useCollection($roomsRef);
+// console.log(roomsRef.value);
+
+// const supabase = useSupabaseClient();
+
+// const files = await supabase.storage.from("room-users").list();
 </script>
 
 <style></style>
