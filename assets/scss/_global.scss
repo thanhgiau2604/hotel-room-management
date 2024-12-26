@@ -4,3 +4,11 @@ body {
   color: black;
   font-family: Inter, "san-serif";
 }
+
+.main-btn {
+  @apply bg-main-2 text-white hover:bg-main-1 transition-colors duration-500 border-none p-2;
+}
+
+.p-dialog-header {
+  @apply text-lg text-main-1 font-bold pb-1;
+}

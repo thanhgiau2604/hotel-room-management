@@ -45,11 +45,7 @@
             >{{ $form.password.error.message }}</Message
           >
         </div>
-        <Button
-          type="submit"
-          label="Submit"
-          class="bg-main-2 text-white hover:bg-main-1 transition-colors duration-500 border-none h-9"
-        />
+        <Button type="submit" label="Submit" class="main-btn h-9" />
       </Form>
     </div>
   </div>

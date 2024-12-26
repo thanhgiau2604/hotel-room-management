@@ -1,8 +1,13 @@
 @use "./reset";
+@use "primeicons/primeicons.css";
 
 @use "tailwindcss/base";
 @use "tailwindcss/components";
-@use "../primevue/tailwind.css";
 @use "tailwindcss/utilities";
 
 @use "./global";
+
+// primevue override base tailwind
+@use "../primevue/selectbutton.css";
+@use "../primevue/togglebutton.css";
+@use "../primevue/fileupload.css";
