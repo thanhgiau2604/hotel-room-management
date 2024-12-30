@@ -1,17 +1,17 @@
 <template>
   <div
     class="relative h-full bg-main-2 text-white transition-all duration-300 ease-in-out"
-    :class="{ 'w-64': isOpen, 'w-16': !isOpen }"
+    :class="{ 'w-64': settings.openPanel, 'w-16': !settings.openPanel }"
   >
     <Button
       class="w-9 h-8 absolute top-4 right-4 p-2 rounded-full bg-main-1 hover:bg-main-3 hover:text-main-1 transition-colors duration-200"
-      :icon="isOpen ? 'pi pi-chevron-left' : 'pi pi-chevron-right'"
+      :icon="settings.openPanel ? 'pi pi-chevron-left' : 'pi pi-chevron-right'"
       @click="togglePanel"
     >
     </Button>
     <div class="p-4 mt-16">
       <Transition name="fade-delay">
-        <div v-if="isOpen" class="leading-6">
+        <div v-if="settings.openPanel" class="leading-6">
           <h2 class="text-xl font-bold mb-4">Room Stats</h2>
           <p><strong>Available:</strong> {{ stats.available }}</p>
           <p><strong>Used:</strong> {{ stats.used }}</p>
@@ -24,9 +24,9 @@
 
 <script lang="ts" setup>
 import { Button } from "primevue";
-import { ref } from "vue";
+const settingStore = useSettingStore();
 
-const isOpen = ref(false);
+const { settings } = storeToRefs(settingStore);
 
 const stats = {
   available: 2,
@@ -35,7 +35,7 @@ const stats = {
 };
 
 const togglePanel = () => {
-  isOpen.value = !isOpen.value;
+  settingStore.togglePanel();
 };
 </script>
 

@@ -58,7 +58,7 @@ const selectedColor = computed(() => {
   switch (props.status) {
     case "available":
       return "ring-green-500";
-    case "used":
+    case "being_used":
       return "ring-red-500";
     case "unavailable":
       return "ring-yellow-500";
@@ -71,7 +71,7 @@ const hoverClass = computed(() => {
   switch (props.status) {
     case "available":
       return "hover:bg-green-100";
-    case "used":
+    case "being_used":
       return "hover:bg-red-100";
     case "unavailable":
       return "hover:bg-yellow-100";
@@ -84,7 +84,7 @@ const iconName = computed(() => {
   switch (props.status) {
     case "available":
       return "pi pi-check";
-    case "used":
+    case "being_used":
       return "pi pi-users";
     case "unavailable":
       return "pi pi-wrench";

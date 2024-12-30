@@ -1,5 +1,6 @@
 <template>
   <div>
+    <Toast />
     <div class="bg-main-4 w-screen h-screen flex">
       <LeftPanel />
       <MainSection />
@@ -12,6 +13,11 @@
 import LeftPanel from "~/components/LeftPanel.vue";
 import BottomAction from "~/components/BottomAction.vue";
 import MainSection from "~/components/MainSection.vue";
-</script>
+import { useRoomStore } from "~/stores/rooms";
 
-<style></style>
+const roomStore = useRoomStore();
+
+onMounted(async () => {
+  await roomStore.fetchRoom();
+});
+</script>

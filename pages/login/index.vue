@@ -1,6 +1,5 @@
 <template>
   <div class="min-h-screen flex items-center justify-center bg-main-4">
-    <Toast />
     <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-[440px]">
       <p class="text-3xl font-bold mb-6 text-center text-main-1">Login</p>
 

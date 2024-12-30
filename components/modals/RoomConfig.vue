@@ -8,15 +8,21 @@
   >
     <div class="flex items-center gap-4 mb-8">
       <label for="notes" class="font-semibold w-24">Room type</label>
-      <SelectButton v-model="value" :options="options" size="small" />
+      <SelectButton
+        v-model="roomTypeValue"
+        :options="options"
+        optionLabel="name"
+        size="small"
+      />
     </div>
     <div class="flex justify-end gap-2">
       <Button type="button" label="Cancel" @click="closeModal"></Button>
       <Button
         type="button"
         label="Save"
-        @click="closeModal"
+        @click="submitModal"
         class="main-btn"
+        :loading="loading"
       ></Button>
     </div>
   </Dialog>
@@ -24,6 +30,13 @@
 
 <script lang="ts" setup>
 import { defineProps, defineEmits } from "vue";
+import { useRoomStore, type Room } from "~/stores/rooms";
+import { useToast } from "primevue/usetoast";
+import { ERRORS, ROOM_TYPE } from "~/constant";
+
+const roomStore = useRoomStore();
+const toast = useToast();
+const loading = ref(false);
 
 const props = defineProps({
   config_visible: {
@@ -32,13 +45,42 @@ const props = defineProps({
   },
 });
 
+const options = ref(ROOM_TYPE);
+const roomTypeValue = ref();
+
 const emit = defineEmits(["update:config_visible"]);
 
-// Emit an event to the parent with the new value
 const closeModal = () => {
   emit("update:config_visible", false);
 };
 
-const value = ref("Fan");
-const options = ref(["Fan", "Air-Conditioner"]);
+const submitModal = async () => {
+  const { currentRoom } = roomStore;
+  if (!currentRoom) {
+    msgError(toast, ERRORS.unknown);
+    emit("update:config_visible", false);
+    return;
+  }
+
+  loading.value = true;
+  const error = await roomStore.changeRoomType(
+    currentRoom.id,
+    roomTypeValue.value.value as "fan" | "ac"
+  );
+  emit("update:config_visible", false);
+  loading.value = false;
+
+  if (error) {
+    msgError(toast, ERRORS.failed);
+  }
+};
+
+watch(
+  () => roomStore.currentRoom,
+  (newRoom) => {
+    roomTypeValue.value =
+      newRoom?.room_type === "ac" ? ROOM_TYPE[1] : ROOM_TYPE[0];
+  },
+  { deep: true, immediate: true }
+);
 </script>

@@ -10,7 +10,9 @@
     >
       <div class="p-8">
         <FilterBox />
-        <div
+        <TransitionGroup
+          name="list"
+          tag="div"
           class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
         >
           <RoomCard
@@ -21,7 +23,7 @@
             @editCustomer="handleEditCustomer"
             @statusChange="handleStatusChange"
           />
-        </div>
+        </TransitionGroup>
       </div>
     </div>
     <RoomConfigModal
@@ -42,118 +44,73 @@ import RoomConfigModal from "~/components/modals/RoomConfig.vue";
 import CustomerInfoModal from "~/components/modals/CustomerInfo.vue";
 import FilterBox from "./FilterBox.vue";
 import RoomCard from "./RoomCard.vue";
+import { useRoomStore, type Room } from "~/stores/rooms";
+import { useToast } from "primevue/usetoast";
+
+const roomStore = useRoomStore();
+const rooms = computed(() => roomStore.rooms);
+
+// toast
+const toast = useToast();
 
 // Reactive state
 const isPanelOpen = ref(false);
-const rooms = ref([
-  {
-    id: 1,
-    number: "101",
-    status: "available",
-    type: "fan",
-    customerName: "",
-    note: "",
-    usedBy: "hour",
-  },
-  {
-    id: 2,
-    number: "102",
-    status: "used",
-    type: "air-conditioned",
-    customerName: "John Doe",
-    note: "VIP guest",
-    usedBy: "day",
-  },
-  {
-    id: 3,
-    number: "103",
-    status: "unavailable",
-    type: "fan",
-    customerName: "",
-    note: "Under maintenance",
-    usedBy: "hour",
-  },
-  {
-    id: 4,
-    number: "104",
-    status: "available",
-    type: "air-conditioned",
-    customerName: "",
-    note: "",
-    usedBy: "hour",
-  },
-  {
-    id: 5,
-    number: "105",
-    status: "used",
-    type: "fan",
-    customerName: "Jane Smith",
-    note: "",
-    usedBy: "hour",
-  },
-  {
-    id: 6,
-    number: "106",
-    status: "available",
-    type: "air-conditioned",
-    customerName: "",
-    note: "",
-    usedBy: "day",
-  },
-  {
-    id: 7,
-    number: "107",
-    status: "used",
-    type: "fan",
-    customerName: "Bob Johnson",
-    note: "Late checkout",
-    usedBy: "day",
-  },
-  {
-    id: 8,
-    number: "108",
-    status: "unavailable",
-    type: "air-conditioned",
-    customerName: "",
-    note: "Cleaning",
-    usedBy: "hour",
-  },
-]);
-const editingRoom = ref(null);
 const visibleConfig = ref(false);
 const visibleCustomer = ref(false);
 
 // Computed statistics
 const stats = computed(() => ({
   available: rooms.value.filter((r) => r.status === "available").length,
-  used: rooms.value.filter((r) => r.status === "used").length,
+  used: rooms.value.filter((r) => r.status === "being_used").length,
   upcoming: 2,
 }));
 
 // Methods
-const handleEditRoom = (room: any) => {
-  editingRoom.value = room;
+const handleEditRoom = (room: Room) => {
   visibleConfig.value = true;
+  roomStore.currentRoom = room;
 };
 
-const handleEditCustomer = (customer: any) => {
+const handleEditCustomer = (room: Room) => {
   visibleCustomer.value = true;
 };
 
 const handleSaveRoom = (editedRoom: any) => {
-  rooms.value = rooms.value.map((r) =>
+  const newRooms = rooms.value.map((r) =>
     r.id === editedRoom.id ? editedRoom : r
   );
-  editingRoom.value = null;
+  roomStore.currentRoom = undefined;
 };
 
-const handleStatusChange = (roomId: any, newStatus: any) => {
-  rooms.value = rooms.value.map((r) =>
-    r.id === roomId ? { ...r, status: newStatus } : r
-  );
+const handleStatusChange = async (
+  roomId: string,
+  newStatus: Room["status"]
+) => {
+  const error = await roomStore.changeRoomStatus(roomId, newStatus);
+  if (error) {
+    toast.add({
+      severity: "error",
+      summary: error,
+      life: 5000,
+    });
+  }
+  roomStore.fetchRoom();
 };
+
+watch(visibleConfig, () => {
+  if (visibleConfig.value === false) {
+    roomStore.currentRoom = undefined;
+  }
+});
 </script>
 
 <style scoped>
-/* Add any specific styles here */
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.6s ease;
+}
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+}
 </style>
