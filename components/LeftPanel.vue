@@ -13,9 +13,66 @@
       <Transition name="fade-delay">
         <div v-if="settings.openPanel" class="leading-6">
           <h2 class="text-xl font-bold mb-4">Room Stats</h2>
-          <p><strong>Available:</strong> {{ stats.available }}</p>
-          <p><strong>Used:</strong> {{ stats.used }}</p>
-          <p><strong>Upcoming:</strong> {{ stats.upcoming }}</p>
+          <div class="text-green-100 flex mb-2">
+            <div class="w-[90px] font-bold">Available ac:</div>
+            <div class="bg-green-100 px-1 rounded text-black w-6 text-center">
+              {{ Number(stats.ac) < 10 ? `0${stats.ac}` : stats.ac }}
+            </div>
+          </div>
+          <div class="text-blue-100 flex mb-2">
+            <div class="w-[90px] font-bold">Available fan:</div>
+            <div class="bg-blue-100 px-1 rounded text-black w-6 text-center">
+              {{ Number(stats.fan) < 10 ? `0${stats.fan}` : stats.fan }}
+            </div>
+          </div>
+          <div class="text-orange-100 flex mb-5">
+            <div class="w-[90px] font-bold">Being used:</div>
+            <div class="bg-orange-100 px-1 rounded text-black w-6 text-center">
+              {{ Number(stats.using) < 10 ? `0${stats.using}` : stats.using }}
+            </div>
+          </div>
+
+          <Button
+            icon="pi pi-history"
+            aria-label="history"
+            label="View History"
+            severity="secondary"
+            class="px-2 py-1"
+            raised
+          />
+        </div>
+      </Transition>
+
+      <Transition name="fade-delay">
+        <div v-if="!settings.openPanel">
+          <img :src="HotelIcon" width="auto" class="mb-4" />
+          <div class="text-green-100 flex mb-4 gap-1 -ml-2">
+            <img :src="ACIcon" width="15" class="brightness-[100]" />
+            <div class="bg-green-100 px-1 rounded text-black w-6 text-center">
+              {{ Number(stats.ac) < 10 ? `0${stats.ac}` : stats.ac }}
+            </div>
+          </div>
+          <div class="text-blue-100 flex mb-4 gap-1 -ml-2">
+            <img :src="FanIcon" width="15" class="brightness-[100]" />
+            <div class="bg-blue-100 px-1 rounded text-black w-6 text-center">
+              {{ Number(stats.fan) < 10 ? `0${stats.fan}` : stats.fan }}
+            </div>
+          </div>
+
+          <div class="text-orange-100 flex mb-5 gap-1 -ml-2">
+            <i class="pi pi-users" style="font-size: 15px; color: white" />
+            <div class="bg-orange-100 px-1 rounded text-black w-6 text-center">
+              {{ Number(stats.using) < 10 ? `0${stats.using}` : stats.using }}
+            </div>
+          </div>
+          <Button
+            icon="pi pi-history"
+            aria-label="history"
+            label=""
+            severity="secondary"
+            class="px-2 py-1"
+            raised
+          />
         </div>
       </Transition>
     </div>
@@ -24,15 +81,14 @@
 
 <script lang="ts" setup>
 import { Button } from "primevue";
+import HotelIcon from "~/assets/icons/hotel.png";
+import FanIcon from "~/assets/icons/fan.svg";
+import ACIcon from "~/assets/icons/air-conditioner.svg";
 const settingStore = useSettingStore();
+const roomStore = useRoomStore();
 
 const { settings } = storeToRefs(settingStore);
-
-const stats = {
-  available: 2,
-  used: 1,
-  upcoming: 1,
-};
+const { stats } = storeToRefs(roomStore);
 
 const togglePanel = () => {
   settingStore.togglePanel();
@@ -41,11 +97,10 @@ const togglePanel = () => {
 
 <style>
 .fade-delay-enter-active {
-  transition: opacity 0.3s ease 0.3s; /* Add a delay to both enter and leave */
+  transition: opacity 0.3s ease 0.5s; /* Add a delay to both enter and leave */
 }
 
 .fade-delay-leave-active {
-  transition: opacity 0s ease;
 }
 
 .fade-delay-enter-from,

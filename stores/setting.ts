@@ -5,6 +5,16 @@ export const useSettingStore = defineStore("settings", {
     settings: {
       openPanel: true,
     },
+    price: {
+      ac: {
+        hour: 30000,
+        day: 200000,
+      },
+      fan: {
+        hour: 20000,
+        day: 150000,
+      },
+    },
   }),
   actions: {
     togglePanel() {

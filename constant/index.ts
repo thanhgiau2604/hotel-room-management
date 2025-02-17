@@ -7,3 +7,8 @@ export const ROOM_TYPE = [
   { name: "Fan", value: "fan" },
   { name: "Air-Conditioner", value: "ac" },
 ];
+
+export const TIME_UNIT = [
+  { name: "Hour", value: "hour" as "hour" | "day" },
+  { name: "Day", value: "day" as "hour" | "day" },
+];

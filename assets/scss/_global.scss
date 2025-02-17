@@ -1,3 +1,7 @@
+:root {
+  --p-form-field-b-weight: 0.1;
+}
+
 body {
   font-size: 13px;
   line-height: 1.2;
@@ -11,4 +15,18 @@ body {
 
 .p-dialog-header {
   @apply text-lg text-main-1 font-bold pb-1;
+}
+
+input,
+textarea {
+  box-shadow: 0px 2px 3px -1px rgba(0, 0, 0, var(--p-form-field-b-weight)),
+    0px 1px 0px 0px rgba(25, 28, 33, 0.02),
+    0px 0px 0px 1px rgba(25, 28, 33, 0.08);
+}
+input:focus {
+  --p-form-field-b-weight: 0.4;
+}
+
+.breakline {
+  word-break: break-word;
 }

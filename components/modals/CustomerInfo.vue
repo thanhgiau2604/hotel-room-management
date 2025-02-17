@@ -2,7 +2,7 @@
   <Dialog
     :visible="customer_visible"
     modal
-    header="Room configuration"
+    header="Customer information"
     class="w-[30rem] px-5 py-6"
     @update:visible="closeModal"
   >
@@ -12,17 +12,13 @@
       >
       <InputText
         id="customer-name"
-        class="flex-auto p-2 rounded-md focus:shadow-slate-300 focus:shadow-md"
+        class="flex-auto p-2 rounded-md"
         autocomplete="off"
       />
     </div>
     <div class="flex items-center gap-4 mb-8">
       <label for="notes" class="font-semibold w-[100px]">Notes</label>
-      <Textarea
-        id="notes"
-        rows="5"
-        class="w-full resize-none p-2 rounded-md focus:shadow-slate-300 focus:shadow-md"
-      />
+      <Textarea id="notes" rows="5" class="w-full resize-none p-2 rounded-md" />
     </div>
     <div class="flex items-center gap-4 mb-4">
       <label for="notes" class="font-semibold w-[100px]">Choose image</label>

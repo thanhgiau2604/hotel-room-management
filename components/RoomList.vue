@@ -21,6 +21,7 @@
             :room="room"
             @editRoom="handleEditRoom"
             @editCustomer="handleEditCustomer"
+            @paymentRoom="handlePaymentRoom"
             @statusChange="handleStatusChange"
           />
         </TransitionGroup>
@@ -35,6 +36,11 @@
       :customer_visible="visibleCustomer"
       @update:customer_visible="visibleCustomer = $event"
     />
+
+    <PaymentRoomModal
+      :payment_visible="visiblePayment"
+      @update:payment_visible="visiblePayment = $event"
+    />
   </div>
 </template>
 
@@ -42,6 +48,7 @@
 import { ref, computed } from "vue";
 import RoomConfigModal from "~/components/modals/RoomConfig.vue";
 import CustomerInfoModal from "~/components/modals/CustomerInfo.vue";
+import PaymentRoomModal from "~/components/modals/PaymentRoom.vue";
 import FilterBox from "./FilterBox.vue";
 import RoomCard from "./RoomCard.vue";
 import { useRoomStore, type Room } from "~/stores/rooms";
@@ -57,6 +64,7 @@ const toast = useToast();
 const isPanelOpen = ref(false);
 const visibleConfig = ref(false);
 const visibleCustomer = ref(false);
+const visiblePayment = ref(false);
 
 // Computed statistics
 const stats = computed(() => ({
@@ -73,6 +81,11 @@ const handleEditRoom = (room: Room) => {
 
 const handleEditCustomer = (room: Room) => {
   visibleCustomer.value = true;
+};
+
+const handlePaymentRoom = (room: Room) => {
+  roomStore.currentRoom = room;
+  visiblePayment.value = true;
 };
 
 const handleSaveRoom = (editedRoom: any) => {

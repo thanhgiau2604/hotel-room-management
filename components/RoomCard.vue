@@ -39,9 +39,17 @@
       <button
         @click="onEditCustomer(room)"
         class="flex justify-center items-center w-6 h-6 p-1 rounded-full bg-main-2 hover:bg-main-1 text-white transition-colors duration-200"
-        aria-label="Edit room details"
+        aria-label="Edit customer info"
       >
         <i class="pi pi-id-card" size="16" />
+      </button>
+
+      <button
+        @click="onPaymentRoom(room)"
+        class="flex justify-center items-center w-6 h-6 p-1 rounded-full bg-main-2 hover:bg-main-1 text-white transition-colors duration-200"
+        aria-label="Payment room"
+      >
+        <i class="pi pi-dollar" size="16" />
       </button>
     </div>
   </div>
@@ -64,6 +72,10 @@ const props = defineProps({
     required: true,
   },
   onEditCustomer: {
+    type: Function,
+    required: true,
+  },
+  onPaymentRoom: {
     type: Function,
     required: true,
   },

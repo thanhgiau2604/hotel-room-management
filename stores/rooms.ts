@@ -21,6 +21,11 @@ export const useRoomStore = defineStore("rooms", {
   state: () => ({
     rooms: [] as Room[],
     currentRoom: undefined as Room | undefined,
+    stats: {
+      fan: undefined as Number | undefined,
+      ac: undefined as Number | undefined,
+      using: undefined as Number | undefined,
+    },
   }),
   actions: {
     updateRoom(rooms: Room[]) {
@@ -34,6 +39,23 @@ export const useRoomStore = defineStore("rooms", {
         id: doc.id,
         ...doc.data(),
       })) as Room[];
+
+      // stats
+      const fanAvailable = [...this.rooms].filter(
+        (r) => r.room_type === "fan" && r.status === "available"
+      ).length;
+      const acAvailable = [...this.rooms].filter(
+        (r) => r.room_type === "ac" && r.status === "available"
+      ).length;
+      const using = [...this.rooms].filter(
+        (r) => r.status === "being_used"
+      ).length;
+
+      this.stats = {
+        fan: fanAvailable,
+        ac: acAvailable,
+        using,
+      };
     },
     async changeRoomStatus(roomId: string, status: Room["status"]) {
       const newRooms = [...this.rooms].map((r) =>
