@@ -9,4 +9,3 @@
 <script setup lang="ts">
 import RoomList from "./RoomList.vue";
 </script>
-<style lang=""></style>

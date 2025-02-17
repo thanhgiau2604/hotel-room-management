@@ -32,14 +32,27 @@
             </div>
           </div>
 
-          <Button
-            icon="pi pi-history"
-            aria-label="history"
-            label="View History"
-            severity="secondary"
-            class="px-2 py-1"
-            raised
-          />
+          <NuxtLink to="/">
+            <Button
+              icon="pi pi-home"
+              aria-label="home"
+              label="Home"
+              severity="secondary"
+              class="px-2 py-1 mb-1 w-full"
+              raised
+            />
+          </NuxtLink>
+
+          <NuxtLink to="/history">
+            <Button
+              icon="pi pi-history"
+              aria-label="history"
+              label="View History"
+              severity="secondary"
+              class="px-2 py-1 w-full"
+              raised
+            />
+          </NuxtLink>
         </div>
       </Transition>
 
@@ -65,14 +78,28 @@
               {{ Number(stats.using) < 10 ? `0${stats.using}` : stats.using }}
             </div>
           </div>
-          <Button
-            icon="pi pi-history"
-            aria-label="history"
-            label=""
-            severity="secondary"
-            class="px-2 py-1"
-            raised
-          />
+
+          <NuxtLink to="/">
+            <Button
+              icon="pi pi-home"
+              aria-label="home"
+              label=""
+              severity="secondary"
+              class="px-2 py-1 mb-1 w-full"
+              raised
+            />
+          </NuxtLink>
+
+          <NuxtLink to="/history">
+            <Button
+              icon="pi pi-history"
+              aria-label="history"
+              label=""
+              severity="secondary"
+              class="px-2 py-1 w-full"
+              raised
+            />
+          </NuxtLink>
         </div>
       </Transition>
     </div>

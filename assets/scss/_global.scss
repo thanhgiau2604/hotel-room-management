@@ -27,6 +27,10 @@ input:focus {
   --p-form-field-b-weight: 0.4;
 }
 
+input {
+  padding: 8px;
+}
+
 .breakline {
   word-break: break-word;
 }

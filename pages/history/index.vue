@@ -1,9 +1,9 @@
 <template>
-  <RoomMainSection />
+  <HistorySection />
 </template>
 
 <script lang="ts" setup>
-import RoomMainSection from "~/components/RoomMainSection.vue";
+import HistorySection from "@/components/HistorySection.vue";
 
 definePageMeta({
   layout: "main",

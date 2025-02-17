@@ -14,6 +14,7 @@ export default defineNuxtConfig({
     "@vueuse/nuxt",
     "pinia-plugin-persistedstate/nuxt",
   ],
+  css: ["~/assets/scss/index.scss"],
   primevue: {
     options: {
       theme: {
@@ -27,7 +28,6 @@ export default defineNuxtConfig({
       },
     },
   },
-  css: ["~/assets/scss/index.scss"],
   vuefire: {
     config: {
       apiKey: process.env.FIREBASE_API_KEY,
