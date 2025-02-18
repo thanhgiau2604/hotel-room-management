@@ -18,7 +18,7 @@
     </div>
     <div class="flex items-center gap-4 mb-8">
       <label for="notes" class="font-semibold w-[100px]">Notes</label>
-      <Textarea id="notes" rows="5" class="w-full resize-none p-2 rounded-md" />
+      <Textarea id="notes" rows="5" class="grow resize-none p-2 rounded-md" />
     </div>
     <div class="flex items-center gap-4 mb-4">
       <label for="notes" class="font-semibold w-[100px]">Choose image</label>
@@ -43,7 +43,12 @@
       />
     </div>
     <div class="flex justify-end gap-2">
-      <Button type="button" label="Cancel" @click="closeModal"></Button>
+      <Button
+        type="button"
+        label="Cancel"
+        @click="closeModal"
+        class="cancel-btn"
+      ></Button>
       <Button
         type="button"
         label="Save"

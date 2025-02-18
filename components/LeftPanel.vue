@@ -4,33 +4,37 @@
     :class="{ 'w-64': settings.openPanel, 'w-16': !settings.openPanel }"
   >
     <Button
-      class="w-9 h-8 absolute top-4 right-4 p-2 rounded-full bg-main-1 hover:bg-main-3 hover:text-main-1 transition-colors duration-200"
+      class="btn-toggle"
       :icon="settings.openPanel ? 'pi pi-chevron-left' : 'pi pi-chevron-right'"
       @click="togglePanel"
-    >
-    </Button>
+    />
+
     <div class="p-4 mt-16">
+      <!-- Expanded Panel -->
       <Transition name="fade-delay">
         <div v-if="settings.openPanel" class="leading-6">
-          <h2 class="text-xl font-bold mb-4">Room Stats</h2>
-          <div class="text-green-100 flex mb-2">
-            <div class="w-[90px] font-bold">Available ac:</div>
-            <div class="bg-green-100 px-1 rounded text-black w-6 text-center">
-              {{ Number(stats.ac) < 10 ? `0${stats.ac}` : stats.ac }}
-            </div>
+          <div class="mb-4 flex gap-1 items-center">
+            <img :src="HotelIcon" alt="Hotel" width="30" />
+            <h2 class="text-xl font-bold">Room Stats</h2>
           </div>
-          <div class="text-blue-100 flex mb-2">
-            <div class="w-[90px] font-bold">Available fan:</div>
-            <div class="bg-blue-100 px-1 rounded text-black w-6 text-center">
-              {{ Number(stats.fan) < 10 ? `0${stats.fan}` : stats.fan }}
-            </div>
-          </div>
-          <div class="text-orange-100 flex mb-5">
-            <div class="w-[90px] font-bold">Being used:</div>
-            <div class="bg-orange-100 px-1 rounded text-black w-6 text-center">
-              {{ Number(stats.using) < 10 ? `0${stats.using}` : stats.using }}
-            </div>
-          </div>
+          <StatDisplay
+            image
+            :src="ACIcon"
+            label="Available AC"
+            :value="formattedStats.ac"
+          />
+          <StatDisplay
+            image
+            :src="FanIcon"
+            label="Available Fan"
+            :value="formattedStats.fan"
+          />
+          <StatDisplay
+            :icon="'pi pi-users'"
+            :isIcon="true"
+            label="Being Used"
+            :value="formattedStats.using"
+          />
 
           <NuxtLink to="/">
             <Button
@@ -38,7 +42,7 @@
               aria-label="home"
               label="Home"
               severity="secondary"
-              class="px-2 py-1 mb-1 w-full"
+              class="px-2 py-1 mb-1 w-full transparent-btn"
               raised
             />
           </NuxtLink>
@@ -49,34 +53,25 @@
               aria-label="history"
               label="View History"
               severity="secondary"
-              class="px-2 py-1 w-full"
+              class="px-2 py-1 w-full transparent-btn"
               raised
             />
           </NuxtLink>
         </div>
       </Transition>
 
+      <!-- Collapsed Panel -->
       <Transition name="fade-delay">
         <div v-if="!settings.openPanel">
-          <img :src="HotelIcon" width="auto" class="mb-4" />
-          <div class="text-green-100 flex mb-4 gap-1 -ml-2">
-            <img :src="ACIcon" width="15" class="brightness-[100]" />
-            <div class="bg-green-100 px-1 rounded text-black w-6 text-center">
-              {{ Number(stats.ac) < 10 ? `0${stats.ac}` : stats.ac }}
-            </div>
-          </div>
-          <div class="text-blue-100 flex mb-4 gap-1 -ml-2">
-            <img :src="FanIcon" width="15" class="brightness-[100]" />
-            <div class="bg-blue-100 px-1 rounded text-black w-6 text-center">
-              {{ Number(stats.fan) < 10 ? `0${stats.fan}` : stats.fan }}
-            </div>
-          </div>
-
-          <div class="text-orange-100 flex mb-5 gap-1 -ml-2">
-            <i class="pi pi-users" style="font-size: 15px; color: white" />
-            <div class="bg-orange-100 px-1 rounded text-black w-6 text-center">
-              {{ Number(stats.using) < 10 ? `0${stats.using}` : stats.using }}
-            </div>
+          <img :src="HotelIcon" alt="Hotel" class="mb-4" width="30" />
+          <div class="-ml-2">
+            <StatDisplay image :src="ACIcon" :value="formattedStats.ac" />
+            <StatDisplay image :src="FanIcon" :value="formattedStats.fan" />
+            <StatDisplay
+              :icon="'pi pi-users'"
+              :isIcon="true"
+              :value="formattedStats.using"
+            />
           </div>
 
           <NuxtLink to="/">
@@ -85,7 +80,7 @@
               aria-label="home"
               label=""
               severity="secondary"
-              class="px-2 py-1 mb-1 w-full"
+              class="px-2 py-1 mb-1 w-full transparent-btn"
               raised
             />
           </NuxtLink>
@@ -96,7 +91,7 @@
               aria-label="history"
               label=""
               severity="secondary"
-              class="px-2 py-1 w-full"
+              class="px-2 py-1 w-full transparent-btn"
               raised
             />
           </NuxtLink>
@@ -107,29 +102,40 @@
 </template>
 
 <script lang="ts" setup>
-import { Button } from "primevue";
+import { computed } from "vue";
+import { storeToRefs } from "pinia";
+import StatDisplay from "~/components/StatDisplay.vue";
+
 import HotelIcon from "~/assets/icons/hotel.png";
 import FanIcon from "~/assets/icons/fan.svg";
 import ACIcon from "~/assets/icons/air-conditioner.svg";
+
 const settingStore = useSettingStore();
 const roomStore = useRoomStore();
 
 const { settings } = storeToRefs(settingStore);
 const { stats } = storeToRefs(roomStore);
 
+const formattedStats = computed(() => ({
+  ac: formatNumber(stats.value.ac),
+  fan: formatNumber(stats.value.fan),
+  using: formatNumber(stats.value.using),
+}));
+
+function formatNumber(num?: Number): string {
+  if (num === undefined) return "";
+  return Number(num) < 10 ? `0${num}` : `${num}`;
+}
+
 const togglePanel = () => {
   settingStore.togglePanel();
 };
 </script>
 
-<style>
+<style scoped>
 .fade-delay-enter-active {
-  transition: opacity 0.3s ease 0.5s; /* Add a delay to both enter and leave */
+  transition: opacity 0.3s ease 0.5s;
 }
-
-.fade-delay-leave-active {
-}
-
 .fade-delay-enter-from,
 .fade-delay-leave-to {
   opacity: 0;
@@ -137,5 +143,9 @@ const togglePanel = () => {
 .fade-delay-enter-to,
 .fade-delay-leave-from {
   opacity: 1;
+}
+
+.btn-toggle {
+  @apply w-9 h-8 absolute top-4 right-4 p-2 rounded-full border-none bg-main-1 hover:bg-main-2 hover:text-main-1 transition-colors duration-200;
 }
 </style>
