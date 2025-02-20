@@ -1,5 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-import Aura from "@primevue/themes/aura";
+// import Aura from "@primevue/themes/aura";
 
 export default defineNuxtConfig({
   compatibilityDate: "2024-11-01",
@@ -14,18 +14,21 @@ export default defineNuxtConfig({
     "@vueuse/nuxt",
     "pinia-plugin-persistedstate/nuxt",
   ],
-  css: ["~/assets/scss/index.scss"],
+  css: [
+    "~/assets/styles/tailwind.css",
+    "~/assets/styles/base.css",
+    "~/assets/scss/index.scss",
+  ],
+  postcss: {
+    plugins: {
+      "postcss-import": {},
+      tailwindcss: {},
+      autoprefixer: {},
+    },
+  },
   primevue: {
     options: {
-      theme: {
-        preset: Aura,
-        options: {
-          cssLayer: {
-            name: "primevue",
-            order: "tailwind-base, primevue, tailwind-utilities",
-          },
-        },
-      },
+      theme: "none",
     },
   },
   vuefire: {

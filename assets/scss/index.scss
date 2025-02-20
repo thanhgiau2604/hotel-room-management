@@ -1,18 +1,26 @@
 @use "./reset";
-@use "primeicons/primeicons.css";
+// @use "primeicons/primeicons.css";
 
-@use "tailwindcss/base";
-@use "tailwindcss/components";
-@use "tailwindcss/utilities";
+// @use "tailwindcss/base";
+// @use "tailwindcss/components";
+// @use "tailwindcss/utilities";
 
 @use "./global";
 
-// primevue override base tailwind
-@use "../primevue/selectbutton.css";
-@use "../primevue/togglebutton.css";
-@use "../primevue/fileupload.css";
-@use "../primevue/panel.css";
-@use "../primevue/card.css";
-@use "../primevue/datatable.css";
-@use "../primevue/select.css";
-@use "../primevue/blockui.css";
+// // primevue override base tailwind
+// @use "../primevue/selectbutton.css";
+// @use "../primevue/togglebutton.css";
+// @use "../primevue/fileupload.css";
+// @use "../primevue/panel.css";
+// @use "../primevue/card.css";
+// @use "../primevue/datatable.css";
+// @use "../primevue/select.css";
+// @use "../primevue/blockui.css";
+
+/* Use @import */
+// @use "./reset";
+
+// @import "tailwindcss/base";
+// @import "tailwindcss/components";
+// @import "./primevue/tailwind.css";
+// @import "tailwindcss/utilities";

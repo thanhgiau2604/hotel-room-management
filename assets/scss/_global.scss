@@ -13,6 +13,20 @@ body {
   @apply bg-main-2 text-white hover:bg-main-1 transition-colors duration-500 border-none p-2;
 }
 
+.cancel-btn {
+  @apply bg-gray-200 text-gray-700 border-none;
+  &:hover:enabled {
+    @apply bg-gray-300;
+  }
+}
+
+.transparent-btn {
+  @apply bg-transparent text-white border-none;
+  &:hover:enabled {
+    @apply bg-transparent text-white brightness-90;
+  }
+}
+
 .p-dialog-header {
   @apply text-lg text-main-1 font-bold pb-1;
 }

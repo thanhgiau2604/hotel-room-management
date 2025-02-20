@@ -16,7 +16,12 @@
       />
     </div>
     <div class="flex justify-end gap-2">
-      <Button type="button" label="Cancel" @click="closeModal"></Button>
+      <Button
+        type="button"
+        label="Cancel"
+        @click="closeModal"
+        class="cancel-btn"
+      ></Button>
       <Button
         type="button"
         label="Save"
