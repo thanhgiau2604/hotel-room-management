@@ -14,6 +14,11 @@
             <p>Nguyen Van A</p>
           </div>
 
+          <div class="flex p-0 mb-2">
+            <label class="shrink-0 w-[80px] font-bold">Image</label>
+            <img :src="CardUser" width="100%" />
+          </div>
+
           <div class="flex p-0 items-center">
             <label class="shrink-0 w-[80px] font-bold">Notes</label>
             <p class="breakline leading-6">
@@ -134,6 +139,7 @@ import { defineProps, defineEmits } from "vue";
 import { useToast } from "primevue/usetoast";
 import { TIME_UNIT } from "~/constant";
 import { toCurrency } from "~/utils";
+import CardUser from "~/assets/card_user.png";
 
 const toast = useToast();
 const roomStore = useRoomStore();

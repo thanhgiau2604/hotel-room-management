@@ -15,11 +15,13 @@ export const msgSuccess = (
 export const msgError = (
   toast: ToastServiceMethods,
   text: string,
+  detail?: string,
   lifeTime?: number
 ) => {
   toast.add({
     severity: "error",
     summary: text,
+    detail,
     life: lifeTime || 5000,
   });
 };

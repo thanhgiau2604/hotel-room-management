@@ -6,63 +6,84 @@
     class="w-[30rem] px-5 py-6"
     @update:visible="closeModal"
   >
-    <div class="flex items-center gap-4 mb-4">
-      <label for="customer-name" class="font-semibold w-[100px]"
-        >Customer name</label
-      >
+    <Form
+      v-slot="$form"
+      :initialValues="initialValues"
+      :resolver="resolver"
+      @submit="onSubmitCustomer"
+    >
+      <div class="flex items-center gap-4 mb-4">
+        <label for="name" class="font-semibold w-[100px]">Customer name</label>
+        <InputText
+          name="name"
+          class="flex-auto p-2 rounded-md"
+          autocomplete="off"
+        />
+      </div>
+      <div class="flex items-center gap-4 mb-8">
+        <label for="note" class="font-semibold w-[100px]">Notes</label>
+        <Textarea
+          name="note"
+          rows="5"
+          class="grow resize-none p-2 rounded-md"
+        />
+      </div>
+      <div class="flex items-center gap-4 mb-4">
+        <label for="upload_image" class="font-semibold w-[100px]"
+          >Choose image</label
+        >
+        <FileUpload
+          mode="basic"
+          name="upload_image"
+          accept="image/*"
+          :maxFileSize="1000000"
+          @select="(e) => onFileSelect(e)"
+          customUpload
+          auto
+          chooseLabel="Browse"
+          class="bg-transparent border-surface-300 text-gray-600 hover:enabled:border-inherit hover:enabled:bg-inherit hover:enabled:brightness-75"
+        />
+      </div>
       <InputText
-        id="customer-name"
+        name="image"
         class="flex-auto p-2 rounded-md"
         autocomplete="off"
+        hidden
       />
-    </div>
-    <div class="flex items-center gap-4 mb-8">
-      <label for="notes" class="font-semibold w-[100px]">Notes</label>
-      <Textarea id="notes" rows="5" class="grow resize-none p-2 rounded-md" />
-    </div>
-    <div class="flex items-center gap-4 mb-4">
-      <label for="notes" class="font-semibold w-[100px]">Choose image</label>
-      <FileUpload
-        mode="basic"
-        name="demo[]"
-        url="/api/upload"
-        accept="image/*"
-        :maxFileSize="1000000"
-        @upload="onUpload"
-        :auto="true"
-        chooseLabel="Browse"
-      />
-    </div>
-    <div class="flex items-center justify-center gap-4 mb-8">
-      <Image
-        src="https://i2.wp.com/digital-photography-school.com/wp-content/uploads/2021/03/landscape-photography-tips-4.jpg?resize=1500%2C908&ssl=1"
-        alt="Image"
-        width="100%"
-        class="max-w-[300px]"
-        preview
-      />
-    </div>
-    <div class="flex justify-end gap-2">
-      <Button
-        type="button"
-        label="Cancel"
-        @click="closeModal"
-        class="cancel-btn"
-      ></Button>
-      <Button
-        type="button"
-        label="Save"
-        @click="closeModal"
-        class="main-btn"
-      ></Button>
-    </div>
+      <div
+        v-if="!!initialValues?.image"
+        class="flex items-center justify-center gap-4 mb-8"
+      >
+        <Image
+          :src="getImageUrl(initialValues.image)"
+          alt="Image"
+          width="100%"
+          class="max-w-[300px]"
+          preview
+        />
+      </div>
+      <div class="flex justify-end gap-2">
+        <Button
+          type="button"
+          label="Cancel"
+          @click="closeModal"
+          class="cancel-btn"
+        ></Button>
+        <Button type="submit" label="Book" class="main-btn"></Button>
+      </div>
+    </Form>
   </Dialog>
 </template>
 
 <script lang="ts" setup>
+import { Form, type FormSubmitEvent } from "@primevue/forms";
 import { defineProps, defineEmits } from "vue";
 import { useToast } from "primevue/usetoast";
+import type { FileUploadSelectEvent } from "primevue";
+import { zodResolver } from "@primevue/forms/resolvers/zod";
+import { z } from "zod";
 const toast = useToast();
+const roomStore = useRoomStore();
 
 const props = defineProps({
   customer_visible: {
@@ -71,19 +92,82 @@ const props = defineProps({
   },
 });
 
+const initialValues = ref({
+  name: "",
+  note: "",
+  image: "",
+});
+
+const customerSchema = z.object({
+  name: z.string(),
+  note: z.string(),
+  image: z.string(),
+});
+
+const resolver = ref(zodResolver(customerSchema));
+
+watch(
+  () => roomStore.currentRoom,
+  (value) => {
+    initialValues.value = {
+      name: value?.customer_info?.name || "",
+      note: value?.customer_info?.note || "",
+      image: value?.customer_info?.image || "",
+    };
+  }
+);
+
+const onSubmitCustomer = async (data: FormSubmitEvent) => {
+  const payload = {
+    ...data.values,
+    image: initialValues.value.image,
+  } as z.infer<typeof customerSchema>;
+
+  const roomId = roomStore.currentRoom?.id;
+
+  if (!roomId) {
+    msgError(toast, "Not found document id");
+    return;
+  }
+
+  const error = await roomStore.updateCustomerInfo(roomId, payload);
+
+  if (!error) {
+    msgSuccess(toast, "Customer info has been updated!");
+    closeModal();
+  } else {
+    msgError(toast, "An error occured when update customer info");
+  }
+};
+
+const supabase = useSupabaseClient();
+
+async function onFileSelect(event: FileUploadSelectEvent) {
+  const file = event.files[0];
+  const fileName = `${new Date().getTime()}`;
+  const { data, error } = await supabase.storage
+    .from("room-users")
+    .upload(fileName, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+
+  if (error) {
+    msgError(toast, "An error occured while uploading the file", error.message);
+  } else {
+    initialValues.value = {
+      ...initialValues.value,
+      image: data.fullPath,
+    };
+
+    msgSuccess(toast, "Upload file success!");
+  }
+}
+
 const emit = defineEmits(["update:customer_visible"]);
 
 // Emit an event to the parent with the new value
 const closeModal = () => {
   emit("update:customer_visible", false);
-};
-
-const onUpload = (event: any) => {
-  toast.add({
-    severity: "info",
-    summary: "Success",
-    detail: "File Uploaded",
-    life: 3000,
-  });
 };
 </script>

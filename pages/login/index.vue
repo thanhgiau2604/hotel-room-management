@@ -73,14 +73,15 @@ const resolver = ref(
   )
 );
 
-const onFormSubmit = ({ valid }: { valid: any }) => {
-  if (valid) {
-    toast.add({
-      severity: "success",
-      summary: "Form is submitted.",
-      life: 3000,
-    });
-  }
+const onFormSubmit = (data: any) => {
+  console.log(data);
+  // if (valid) {
+  //   toast.add({
+  //     severity: "success",
+  //     summary: "Form is submitted.",
+  //     life: 3000,
+  //   });
+  // }
 };
 
 // const { $roomsRef } = useNuxtApp();
@@ -91,6 +92,8 @@ const onFormSubmit = ({ valid }: { valid: any }) => {
 // const supabase = useSupabaseClient();
 
 // const files = await supabase.storage.from("room-users").list();
+
+// console.log(files);
 </script>
 
 <style></style>

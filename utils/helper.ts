@@ -23,3 +23,8 @@ export function isValidNumber(input: string): boolean {
 
   return numberRegex.test(inputNumber);
 }
+
+export function getImageUrl(path: string): string {
+  const runtimeConfig = useRuntimeConfig();
+  return `${runtimeConfig.public.supabase.url}/storage/v1/object/public/${path}`;
+}

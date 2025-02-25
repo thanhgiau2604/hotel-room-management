@@ -1,5 +1,6 @@
 <template>
   <div>
+    <Toast />
     <div class="bg-main-4 w-screen h-screen flex">
       <LeftPanel />
       <slot />

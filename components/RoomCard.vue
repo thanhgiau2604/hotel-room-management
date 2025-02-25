@@ -29,14 +29,6 @@
 
     <div class="flex items-center gap-2">
       <button
-        @click="onEditRoom(room)"
-        class="flex justify-center items-center w-6 h-6 p-1 rounded-full bg-main-2 hover:bg-main-1 text-white transition-colors duration-200"
-        aria-label="Edit room details"
-      >
-        <i class="pi pi-pencil text-xs" size="14" />
-      </button>
-
-      <button
         @click="onEditCustomer(room)"
         class="flex justify-center items-center w-6 h-6 p-1 rounded-full bg-main-2 hover:bg-main-1 text-white transition-colors duration-200"
         aria-label="Edit customer info"
@@ -50,6 +42,14 @@
         aria-label="Payment room"
       >
         <i class="pi pi-dollar" size="16" />
+      </button>
+
+      <button
+        @click="onEditRoom(room)"
+        class="flex justify-center items-center w-6 h-6 p-1 rounded-full bg-main-2 hover:bg-main-1 text-white transition-colors duration-200"
+        aria-label="Edit room details"
+      >
+        <i class="pi pi-pencil text-xs" size="14" />
       </button>
     </div>
   </div>

@@ -81,6 +81,7 @@ const handleEditRoom = (room: Room) => {
 
 const handleEditCustomer = (room: Room) => {
   visibleCustomer.value = true;
+  roomStore.currentRoom = room;
 };
 
 const handlePaymentRoom = (room: Room) => {

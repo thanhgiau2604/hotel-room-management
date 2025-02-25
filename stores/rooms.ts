@@ -3,9 +3,16 @@ import {
   getDocs,
   orderBy,
   query,
+  setDoc,
   type Timestamp,
 } from "firebase/firestore";
 import { defineStore } from "pinia";
+
+export type CustomerInfo = {
+  name: string;
+  image: string;
+  note: string;
+};
 
 export type Room = {
   id: string;
@@ -13,6 +20,7 @@ export type Room = {
   room_type: "fan" | "ac";
   status: "available" | "being_used" | "unavailable";
   started_at: Timestamp | null;
+  customer_info?: CustomerInfo;
   created_at: Timestamp;
   updated_at: Timestamp;
 };
@@ -87,6 +95,27 @@ export const useRoomStore = defineStore("rooms", {
       });
 
       return error;
+    },
+    async updateCustomerInfo(
+      roomId: string,
+      info: CustomerInfo
+    ): Promise<string | null> {
+      const { $roomsRef } = useNuxtApp();
+
+      try {
+        await setDoc(
+          doc($roomsRef, roomId),
+          {
+            customer_info: info,
+          },
+          { merge: true }
+        );
+
+        this.fetchRoom();
+        return null;
+      } catch (error) {
+        return (error as Error).message;
+      }
     },
   },
 });
