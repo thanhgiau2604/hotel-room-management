@@ -17,6 +17,7 @@
     "@primevue/forms": "^4.2.5",
     "@primevue/themes": "^4.2.5",
     "@vueuse/nuxt": "12.2.0",
+    "date-fns": "^4.1.0",
     "firebase": "^11.1.0",
     "firebase-admin": "^13.0.2",
     "nuxt": "^3.14.1592",

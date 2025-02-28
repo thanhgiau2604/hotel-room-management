@@ -13,6 +13,20 @@
       @submit="onSubmitCustomer"
     >
       <div class="flex items-center gap-4 mb-4">
+        <label for="name" class="font-semibold w-[100px]">Start time</label>
+        <DatePicker
+          id="datepicker-24h"
+          v-model="initialValues.start_time"
+          showTime
+          hourFormat="24"
+          fluid
+          size="small"
+          name="start_time"
+          class="text-xs"
+        />
+      </div>
+
+      <div class="flex items-center gap-4 mb-4">
         <label for="name" class="font-semibold w-[100px]">Customer name</label>
         <InputText
           name="name"
@@ -68,8 +82,14 @@
           label="Cancel"
           @click="closeModal"
           class="cancel-btn"
+          :disabled="loading.includes('updateCustomerInfo')"
         ></Button>
-        <Button type="submit" label="Book" class="main-btn"></Button>
+        <Button
+          type="submit"
+          label="Book"
+          class="main-btn"
+          :loading="loading.includes('updateCustomerInfo')"
+        ></Button>
       </div>
     </Form>
   </Dialog>
@@ -82,8 +102,10 @@ import { useToast } from "primevue/usetoast";
 import type { FileUploadSelectEvent } from "primevue";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { z } from "zod";
+import type { Timestamp } from "firebase/firestore";
 const toast = useToast();
 const roomStore = useRoomStore();
+const { loading } = storeToRefs(roomStore);
 
 const props = defineProps({
   customer_visible: {
@@ -96,12 +118,14 @@ const initialValues = ref({
   name: "",
   note: "",
   image: "",
+  start_time: new Date(),
 });
 
 const customerSchema = z.object({
   name: z.string(),
   note: z.string(),
   image: z.string(),
+  start_time: z.date(),
 });
 
 const resolver = ref(zodResolver(customerSchema));
@@ -113,6 +137,9 @@ watch(
       name: value?.customer_info?.name || "",
       note: value?.customer_info?.note || "",
       image: value?.customer_info?.image || "",
+      start_time: value?.customer_info?.start_time
+        ? (value?.customer_info?.start_time as Timestamp).toDate()
+        : new Date(),
     };
   }
 );
@@ -129,6 +156,8 @@ const onSubmitCustomer = async (data: FormSubmitEvent) => {
     msgError(toast, "Not found document id");
     return;
   }
+
+  console.log(payload);
 
   const error = await roomStore.updateCustomerInfo(roomId, payload);
 

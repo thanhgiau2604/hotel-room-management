@@ -1,5 +1,5 @@
 <template>
-  <div
+  <button
     :class="[
       baseClasses,
       isSelected ? selectedClasses + selectedColor : '',
@@ -7,23 +7,23 @@
       hoverClass,
     ]"
     @click="handleClick"
+    :disabled="isDisabled"
   >
-    <!-- Render the corresponding icon based on the status -->
     <i :class="iconName" style="font-size: 11px" />
-  </div>
+  </button>
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, computed } from "vue";
+import { defineProps, defineEmits, computed, type PropType } from "vue";
+import { ROOM_STATUES } from "~/constant";
 
-// Define props and their types
 const props = defineProps({
   status: {
     type: String,
     required: true,
   },
-  isSelected: {
-    type: Boolean,
+  currentStatus: {
+    type: String as PropType<RoomStatus>,
     required: true,
   },
   onClick: {
@@ -32,15 +32,26 @@ const props = defineProps({
   },
 });
 
-// Define emits to pass events properly
+const isSelected = computed(() => props.status === props.currentStatus);
+
+const isDisabled = computed(() => {
+  const { status, currentStatus } = props;
+  if (currentStatus === ROOM_STATUES[1]) {
+    return status === ROOM_STATUES[2];
+  } else if (currentStatus === ROOM_STATUES[2]) {
+    return status === ROOM_STATUES[1] || status === ROOM_STATUES[3];
+  } else {
+    return status === ROOM_STATUES[2];
+  }
+});
+
 const emit = defineEmits();
 
 // Base and selected class styles
 const baseClasses =
-  "flex justify-center items-center p-1 rounded-full transition-all duration-200 cursor-pointer w-4 h-4 ";
+  "btnStatus flex justify-center items-center p-1 rounded-full transition-all duration-200 cursor-pointer w-4 h-4 ";
 const selectedClasses = "ring-1 ring-offset-1 ";
 
-// Computed values for dynamic styling
 const statusClass = computed(() => {
   switch (props.status) {
     case "available":
@@ -102,6 +113,9 @@ const handleClick = () => {
 };
 </script>
 
-<style scoped>
-/* Add any necessary styles here */
+<style lang="scss" scoped>
+.btnStatus:disabled {
+  @apply opacity-40 cursor-not-allowed;
+  @apply hover:bg-transparent;
+}
 </style>

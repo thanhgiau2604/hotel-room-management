@@ -37,6 +37,11 @@ textarea {
     0px 1px 0px 0px rgba(25, 28, 33, 0.02),
     0px 0px 0px 1px rgba(25, 28, 33, 0.08);
 }
+
+.p-radiobutton-box {
+  @apply shadow-[0_1px_4px_rgb(0,0,0,0.2)];
+}
+
 input:focus {
   --p-form-field-b-weight: 0.4;
 }
@@ -47,4 +52,9 @@ input {
 
 .breakline {
   word-break: break-word;
+}
+
+// display none toast detail of default toast from PrimeVue
+.p-toast-detail {
+  display: none !important;
 }

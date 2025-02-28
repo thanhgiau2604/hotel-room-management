@@ -7,18 +7,22 @@ import {
   type Timestamp,
 } from "firebase/firestore";
 import { defineStore } from "pinia";
+import { ROOM_STATUES } from "~/constant";
 
 export type CustomerInfo = {
   name: string;
   image: string;
   note: string;
+  start_time: Date | Timestamp;
 };
+
+export type RoomStatus = "available" | "being_used" | "unavailable";
 
 export type Room = {
   id: string;
   name: string;
   room_type: "fan" | "ac";
-  status: "available" | "being_used" | "unavailable";
+  status: RoomStatus;
   started_at: Timestamp | null;
   customer_info?: CustomerInfo;
   created_at: Timestamp;
@@ -34,12 +38,19 @@ export const useRoomStore = defineStore("rooms", {
       ac: undefined as Number | undefined,
       using: undefined as Number | undefined,
     },
+    loading: [] as (
+      | "fetchRooms"
+      | "changeRoomStatus"
+      | "changeRoomType"
+      | "updateCustomerInfo"
+    )[],
   }),
   actions: {
     updateRoom(rooms: Room[]) {
       this.rooms = rooms;
     },
     async fetchRoom() {
+      this.loading.push("fetchRooms");
       const { $roomsRef } = useNuxtApp();
       const roomsQuery = query($roomsRef, orderBy("created_at", "asc"));
       const querySnapshot = await getDocs(roomsQuery);
@@ -59,6 +70,8 @@ export const useRoomStore = defineStore("rooms", {
         (r) => r.status === "being_used"
       ).length;
 
+      this.loading.splice(this.loading.indexOf("fetchRooms"));
+
       this.stats = {
         fan: fanAvailable,
         ac: acAvailable,
@@ -66,6 +79,7 @@ export const useRoomStore = defineStore("rooms", {
       };
     },
     async changeRoomStatus(roomId: string, status: Room["status"]) {
+      this.loading.push("changeRoomStatus");
       const newRooms = [...this.rooms].map((r) =>
         r.id === roomId ? { ...r, status } : r
       );
@@ -79,9 +93,13 @@ export const useRoomStore = defineStore("rooms", {
         status,
       });
 
+      this.loading.splice(this.loading.indexOf("changeRoomStatus"));
+
       return error;
     },
     async changeRoomType(roomId: string, type: Room["room_type"]) {
+      this.loading.push("changeRoomType");
+
       const newRooms = [...this.rooms].map((r) =>
         r.id === roomId ? { ...r, room_type: type } : r
       );
@@ -94,6 +112,8 @@ export const useRoomStore = defineStore("rooms", {
         room_type: type,
       });
 
+      this.loading.splice(this.loading.indexOf("changeRoomType"));
+
       return error;
     },
     async updateCustomerInfo(
@@ -101,12 +121,14 @@ export const useRoomStore = defineStore("rooms", {
       info: CustomerInfo
     ): Promise<string | null> {
       const { $roomsRef } = useNuxtApp();
+      this.loading.push("updateCustomerInfo");
 
       try {
         await setDoc(
           doc($roomsRef, roomId),
           {
             customer_info: info,
+            status: ROOM_STATUES[2],
           },
           { merge: true }
         );
@@ -115,6 +137,8 @@ export const useRoomStore = defineStore("rooms", {
         return null;
       } catch (error) {
         return (error as Error).message;
+      } finally {
+        this.loading.splice(this.loading.indexOf("updateCustomerInfo"));
       }
     },
   },

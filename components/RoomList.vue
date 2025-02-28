@@ -1,13 +1,6 @@
 <template>
   <div class="bg-[#E9EFEC] min-h-screen">
-    <div
-      :class="[
-        'transition-all',
-        'duration-300',
-        'ease-in-out',
-        isPanelOpen ? 'ml-64' : 'ml-16',
-      ]"
-    >
+    <div :class="['transition-all', 'duration-300', 'ease-in-out']">
       <div class="p-8">
         <FilterBox />
         <TransitionGroup

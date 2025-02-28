@@ -7,11 +7,11 @@
 }
 
 .p-toast-message-icon {
-  @apply flex-shrink-0 text-lg w-[1.125rem] h-[1.125rem] mt-0.5;
+  @apply flex-shrink-0 text-lg w-[1.125rem] h-[1.125rem];
 }
 
 .p-toast-message-content {
-  @apply flex items-start p-3 gap-2;
+  @apply flex items-center p-3 gap-2;
 }
 
 .p-toast-message-text {
@@ -65,7 +65,7 @@
 }
 
 .p-toast-message-success {
-  @apply bg-main-2/50 border-main-2 text-main-1
+  @apply bg-main-2/40 border-main-2 text-main-5
         dark:bg-green-500/15 dark:border-green-700/35 dark:text-green-500
         shadow-[0px_4px_8px_0px_theme(colors.green.500/0.04)];
 }

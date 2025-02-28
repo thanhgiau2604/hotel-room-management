@@ -11,18 +11,25 @@
         <div class="text-sm">
           <div class="flex p-0 mb-2">
             <label class="shrink-0 w-[80px] font-bold">Name</label>
-            <p>Nguyen Van A</p>
+            <p>{{ currentRoom?.customer_info?.name }}</p>
           </div>
 
-          <div class="flex p-0 mb-2">
+          <div class="flex p-0 mb-2 pt-2">
             <label class="shrink-0 w-[80px] font-bold">Image</label>
-            <img :src="CardUser" width="100%" />
+            <Image
+              v-if="currentRoom?.customer_info?.image"
+              :src="getImageUrl(currentRoom?.customer_info?.image)"
+              alt="Image"
+              width="100%"
+              class="overflow-hidden"
+              preview
+            />
           </div>
 
-          <div class="flex p-0 items-center">
+          <div class="flex p-0 items-center pt-2">
             <label class="shrink-0 w-[80px] font-bold">Notes</label>
             <p class="breakline leading-6">
-              Loremdddfhudsgjdjgfhgsdfgghsdfghgsgfghsghfghsdhfhdsfhhsfhgghsdfghjgsdfghsgfygwgfcguwefbbjsdfjghdfb
+              {{ currentRoom?.customer_info?.note }}
             </p>
           </div>
         </div>
@@ -36,24 +43,41 @@
             <label class="shrink-0 w-[100px] font-bold">Type of room</label>
             <p>{{ values.typeRoom === "fan" ? "Fan" : "Air Conditioner" }}</p>
           </div>
-
           <div class="flex mb-3 items-center">
             <label class="shrink-0 w-[100px] font-bold">Time used</label>
-            <div class="flex gap-2">
-              <InputText
-                v-model="values.timeUsed"
-                type="number"
-                id="payment-time-used"
-                class="flex-auto p-2 rounded-md w-[150px]"
-                autocomplete="off"
-                min="1"
-              />
-              <SelectButton
-                v-model="values.selectedUnit"
-                :options="timeUnits"
-                optionLabel="name"
-                size="small"
-              />
+            <div class="flex flex-col gap-2">
+              <p>
+                <span class="font-medium mr-2">Start time:</span>
+                <span v-if="currentRoom?.customer_info?.start_time"
+                  >{{
+                    formatDate(
+                      (
+                        currentRoom?.customer_info.start_time as Timestamp
+                      ).toDate()
+                    )
+                  }}
+                </span>
+              </p>
+              <p>
+                <span class="font-medium mr-2">End time:</span>
+                <span>{{ formatDate(new Date()) }} </span>
+              </p>
+              <div class="flex gap-2">
+                <InputText
+                  v-model="values.timeUsed"
+                  type="number"
+                  id="payment-time-used"
+                  class="flex-auto p-2 rounded-md w-[150px]"
+                  autocomplete="off"
+                  min="1"
+                />
+                <SelectButton
+                  v-model="values.selectedUnit"
+                  :options="timeUnits"
+                  optionLabel="name"
+                  size="small"
+                />
+              </div>
             </div>
           </div>
           <div class="flex mb-3">
@@ -139,7 +163,7 @@ import { defineProps, defineEmits } from "vue";
 import { useToast } from "primevue/usetoast";
 import { TIME_UNIT } from "~/constant";
 import { toCurrency } from "~/utils";
-import CardUser from "~/assets/card_user.png";
+import type { Timestamp } from "firebase/firestore";
 
 const toast = useToast();
 const roomStore = useRoomStore();
@@ -176,6 +200,25 @@ const errorOtherCost = computed(() => {
 
 watch(currentRoom, () => {
   values.value.typeRoom = currentRoom.value?.room_type || "fan";
+
+  const startTime = currentRoom.value?.customer_info?.start_time
+    ? (currentRoom.value?.customer_info?.start_time as Timestamp).toDate()
+    : null;
+
+  const endTime = new Date();
+
+  if (startTime) {
+    const durationUsed = differenceBetweenDates(endTime, startTime);
+    console.log(durationUsed);
+
+    if (durationUsed.days >= 1) {
+      values.value.selectedUnit = TIME_UNIT[1];
+      values.value.timeUsed = durationUsed.days.toFixed(1);
+    } else {
+      values.value.selectedUnit = TIME_UNIT[0];
+      values.value.timeUsed = durationUsed.hours.toFixed(1);
+    }
+  }
 });
 
 const emit = defineEmits(["update:payment_visible"]);

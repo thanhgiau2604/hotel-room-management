@@ -12,3 +12,9 @@ export const TIME_UNIT = [
   { name: "Hour", value: "hour" as "hour" | "day" },
   { name: "Day", value: "day" as "hour" | "day" },
 ];
+
+export const ROOM_STATUES = {
+  1: "available",
+  2: "being_used",
+  3: "unavailable",
+};

@@ -18,10 +18,10 @@
         class="flex flex-col justify-between ml-4 shadow-slate-300 shadow-md p-1 rounded-md gap-1"
       >
         <StatusIcon
-          v-for="status in statuses"
+          v-for="status in [ROOM_STATUES[1], ROOM_STATUES[2], ROOM_STATUES[3]]"
           :key="status"
           :status="status"
-          :isSelected="room.status === status"
+          :currentStatus="currentStatus"
           @click="onStatusChange(room.id, status)"
         />
       </div>
@@ -30,23 +30,27 @@
     <div class="flex items-center gap-2">
       <button
         @click="onEditCustomer(room)"
-        class="flex justify-center items-center w-6 h-6 p-1 rounded-full bg-main-2 hover:bg-main-1 text-white transition-colors duration-200"
+        class="action-btn"
         aria-label="Edit customer info"
+        :disabled="currentStatus === ROOM_STATUES[3]"
       >
         <i class="pi pi-id-card" size="16" />
       </button>
 
       <button
         @click="onPaymentRoom(room)"
-        class="flex justify-center items-center w-6 h-6 p-1 rounded-full bg-main-2 hover:bg-main-1 text-white transition-colors duration-200"
+        class="action-btn"
         aria-label="Payment room"
+        :disabled="
+          currentStatus === ROOM_STATUES[1] || currentStatus === ROOM_STATUES[3]
+        "
       >
         <i class="pi pi-dollar" size="16" />
       </button>
 
       <button
         @click="onEditRoom(room)"
-        class="flex justify-center items-center w-6 h-6 p-1 rounded-full bg-main-2 hover:bg-main-1 text-white transition-colors duration-200"
+        class="action-btn"
         aria-label="Edit room details"
       >
         <i class="pi pi-pencil text-xs" size="14" />
@@ -61,6 +65,7 @@ import StatusIcon from "./StatusIcon.vue";
 import FanIcon from "~/assets/icons/fan.svg";
 import AirConditioner from "~/assets/icons/air-conditioner.svg";
 import type { Room } from "~/stores/rooms";
+import { ROOM_STATUES } from "~/constant";
 
 const props = defineProps({
   room: {
@@ -85,9 +90,15 @@ const props = defineProps({
   },
 });
 
-const statuses = ["available", "being_used", "unavailable"];
+const currentStatus = computed(() => props.room.status);
 </script>
 
 <style scoped>
-/* Add any necessary styles */
+.action-btn {
+  @apply flex justify-center items-center w-6 h-6 p-1 rounded-full bg-main-2 hover:bg-main-1 text-white transition-colors duration-200;
+
+  &:disabled {
+    @apply bg-main-2/50 cursor-not-allowed;
+  }
+}
 </style>
