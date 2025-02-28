@@ -3,9 +3,13 @@
     :visible="payment_visible"
     modal
     header="Payment"
-    class="w-[30rem] px-5 py-6"
+    :class="[
+      'w-[30rem] px-5 py-6',
+      { 'pointer-events-none': loading.includes('addHistory') },
+    ]"
     @update:visible="closeModal"
   >
+    <!-- Customer Info -->
     <div class="card mb-3">
       <Panel header="Customer info" toggleable class="text-base">
         <div class="text-sm">
@@ -45,7 +49,9 @@
           </div>
           <div class="flex mb-3 items-center">
             <label class="shrink-0 w-[100px] font-bold">Time used</label>
-            <div class="flex flex-col gap-2">
+            <div
+              class="flex flex-col gap-2 p-3 rounded-md border border-dashed border-gray-300"
+            >
               <p>
                 <span class="font-medium mr-2">Start time:</span>
                 <span v-if="currentRoom?.customer_info?.start_time"
@@ -60,14 +66,14 @@
               </p>
               <p>
                 <span class="font-medium mr-2">End time:</span>
-                <span>{{ formatDate(new Date()) }} </span>
+                <span>{{ formatDate(paymentTime) }} </span>
               </p>
               <div class="flex gap-2">
                 <InputText
                   v-model="values.timeUsed"
                   type="number"
                   id="payment-time-used"
-                  class="flex-auto p-2 rounded-md w-[150px]"
+                  class="flex-auto p-2 rounded-md w-full"
                   autocomplete="off"
                   min="1"
                 />
@@ -85,14 +91,14 @@
             <Textarea
               v-model="values.notes"
               rows="2"
-              class="w-full resize-none p-2 rounded-md h-[60px]"
+              class="w-full resize-none p-2 rounded-md h-[60px] border border-dashed border-gray-300"
             />
           </div>
 
           <div class="flex items-center">
             <label class="shrink-0 w-[100px] font-bold">Summary</label>
             <div
-              class="text-right grow border border-dashed border-gray-300 rounded-sm p-3"
+              class="text-right grow border border-dashed border-gray-300 rounded-md p-3"
             >
               <p class="font-bold text-lg text-gray-500 mb-1">
                 {{ values.timeUsed }} ({{ values.selectedUnit.value }}) x
@@ -128,11 +134,7 @@
                 <p
                   class="text-blue-600 mb-1 bg-blue-100 w-fit inline-block px-2 py-1 rounded-md"
                 >
-                  {{
-                    toCurrency(
-                      +values.otherCost + +values.timeUsed * basePriceUsing
-                    )
-                  }}
+                  {{ toCurrency(totalPrice) }}
                 </p>
               </div>
             </div>
@@ -147,12 +149,14 @@
         label="Cancel"
         @click="closeModal"
         class="cancel-btn"
+        :disabled="loading.includes('addHistory')"
       ></Button>
       <Button
         type="button"
         label="Confirm payment"
-        @click="closeModal"
+        @click="submitPayment"
         class="main-btn"
+        :loading="loading.includes('addHistory')"
       ></Button>
     </div>
   </Dialog>
@@ -167,9 +171,11 @@ import type { Timestamp } from "firebase/firestore";
 
 const toast = useToast();
 const roomStore = useRoomStore();
+const historyStore = useRoomHistoriesStore();
 
 const { price: basePrice } = useSettingStore();
 const { currentRoom } = storeToRefs(roomStore);
+const { loading } = storeToRefs(historyStore);
 
 const props = defineProps({
   payment_visible: {
@@ -184,6 +190,8 @@ const basePriceUsing = computed(
 
 const timeUnits = ref(TIME_UNIT);
 
+let paymentTime = new Date();
+
 const values = ref({
   selectedUnit: TIME_UNIT[0],
   timeUsed: "1",
@@ -192,34 +200,56 @@ const values = ref({
   otherCost: "",
 });
 
-const errorOtherCost = computed(() => {
-  const cost = values.value.otherCost;
-  if (cost.trim() === "") return "";
-  return isValidNumber(cost) ? "" : "Invalid value";
-});
+const totalPrice = computed(
+  () => +values.value.otherCost + +values.value.timeUsed * basePriceUsing.value
+);
+
+const errorOtherCost = computed(() =>
+  isValidNumber(values.value.otherCost) ? "" : "Invalid value"
+);
 
 watch(currentRoom, () => {
   values.value.typeRoom = currentRoom.value?.room_type || "fan";
 
-  const startTime = currentRoom.value?.customer_info?.start_time
-    ? (currentRoom.value?.customer_info?.start_time as Timestamp).toDate()
-    : null;
-
-  const endTime = new Date();
+  let startTime = currentRoom.value?.customer_info?.start_time;
+  startTime = startTime ? (startTime as Timestamp).toDate() : undefined;
 
   if (startTime) {
-    const durationUsed = differenceBetweenDates(endTime, startTime);
-    console.log(durationUsed);
-
-    if (durationUsed.days >= 1) {
-      values.value.selectedUnit = TIME_UNIT[1];
-      values.value.timeUsed = durationUsed.days.toFixed(1);
-    } else {
-      values.value.selectedUnit = TIME_UNIT[0];
-      values.value.timeUsed = durationUsed.hours.toFixed(1);
-    }
+    paymentTime = new Date();
+    const { days, hours } = differenceBetweenDates(paymentTime, startTime);
+    values.value.selectedUnit = days >= 1 ? TIME_UNIT[1] : TIME_UNIT[0];
+    values.value.timeUsed = (days >= 1 ? days : hours).toFixed(1);
   }
 });
+
+const submitPayment = async () => {
+  if (!currentRoom?.value?.customer_info) {
+    return;
+  }
+
+  const paymentAmount = values.value;
+
+  const error = await historyStore.addHistory({
+    room_id: currentRoom.value?.id || "",
+    customer_info: {
+      ...currentRoom.value.customer_info,
+      end_at: paymentTime,
+    },
+    payment_detail: {
+      other_cost: +paymentAmount.otherCost,
+      time_used: +paymentAmount.timeUsed,
+      time_unit: paymentAmount.selectedUnit.value,
+      total: totalPrice.value,
+    },
+  });
+
+  if (!error) {
+    msgSuccess(toast, "The action has been processed successfully!");
+    closeModal();
+  } else {
+    msgError(toast, "An error occured", error);
+  }
+};
 
 const emit = defineEmits(["update:payment_visible"]);
 

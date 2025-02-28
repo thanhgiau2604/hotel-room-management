@@ -24,7 +24,7 @@ export type Room = {
   room_type: "fan" | "ac";
   status: RoomStatus;
   started_at: Timestamp | null;
-  customer_info?: CustomerInfo;
+  customer_info?: CustomerInfo | null;
   created_at: Timestamp;
   updated_at: Timestamp;
 };
@@ -46,8 +46,16 @@ export const useRoomStore = defineStore("rooms", {
     )[],
   }),
   actions: {
-    updateRoom(rooms: Room[]) {
-      this.rooms = rooms;
+    async updateOneRoom(roomData: Partial<Room>, roomId: string) {
+      const { $roomsRef } = useNuxtApp();
+      const documentRef = doc($roomsRef, roomId);
+
+      const { error } = await setDocument<Room>(documentRef, roomData);
+
+      if (!error) {
+        this.fetchRoom();
+      }
+      return error;
     },
     async fetchRoom() {
       this.loading.push("fetchRooms");

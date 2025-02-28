@@ -157,8 +157,6 @@ const onSubmitCustomer = async (data: FormSubmitEvent) => {
     return;
   }
 
-  console.log(payload);
-
   const error = await roomStore.updateCustomerInfo(roomId, payload);
 
   if (!error) {
