@@ -208,19 +208,22 @@ const errorOtherCost = computed(() =>
   isValidNumber(values.value.otherCost) ? "" : "Invalid value"
 );
 
-watch(currentRoom, () => {
-  values.value.typeRoom = currentRoom.value?.room_type || "fan";
+watch(
+  () => [currentRoom, props.payment_visible],
+  () => {
+    values.value.typeRoom = currentRoom.value?.room_type || "fan";
 
-  let startTime = currentRoom.value?.customer_info?.start_time;
-  startTime = startTime ? (startTime as Timestamp).toDate() : undefined;
+    let startTime = currentRoom.value?.customer_info?.start_time;
+    startTime = startTime ? (startTime as Timestamp).toDate() : undefined;
 
-  if (startTime) {
-    paymentTime = new Date();
-    const { days, hours } = differenceBetweenDates(paymentTime, startTime);
-    values.value.selectedUnit = days >= 1 ? TIME_UNIT[1] : TIME_UNIT[0];
-    values.value.timeUsed = (days >= 1 ? days : hours).toFixed(1);
+    if (startTime) {
+      paymentTime = new Date();
+      const { days, hours } = differenceBetweenDates(paymentTime, startTime);
+      values.value.selectedUnit = days >= 1 ? TIME_UNIT[1] : TIME_UNIT[0];
+      values.value.timeUsed = (days >= 1 ? days : hours).toFixed(1);
+    }
   }
-});
+);
 
 const submitPayment = async () => {
   if (!currentRoom?.value?.customer_info) {

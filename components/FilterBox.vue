@@ -7,29 +7,29 @@
       <div class="flex items-center gap-2">
         <RadioButton
           v-model="filterType"
-          inputId="filterType1"
-          name="filterType"
+          inputId="typeAll"
+          name="typeAll"
           value="all"
         />
-        <label for="filterType1">All</label>
+        <label for="typeAll">All</label>
       </div>
       <div class="flex items-center gap-2">
         <RadioButton
           v-model="filterType"
-          inputId="filterType2"
-          name="filterType"
+          inputId="typeAc"
+          name="typeAc"
           value="ac"
         />
-        <label for="filterType2">AC</label>
+        <label for="typeAc">AC</label>
       </div>
       <div class="flex items-center gap-2">
         <RadioButton
           v-model="filterType"
-          inputId="filterType3"
-          name="filterType"
+          inputId="typeFan"
+          name="typeFan"
           value="fan"
         />
-        <label for="filterType3">Fan</label>
+        <label for="typeFan">Fan</label>
       </div>
     </div>
   </div>
@@ -39,7 +39,12 @@
 import { ref } from "vue";
 
 const filterDate = ref(new Date().toISOString().split("T")[0]);
-const filterType = ref("all");
+const filterType = ref("all" as FilterRoomType);
+const roomStore = useRoomStore();
+
+watch(filterType, () => {
+  roomStore.updateFilterType(filterType.value);
+});
 </script>
 
 <style scoped>

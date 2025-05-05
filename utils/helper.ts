@@ -1,10 +1,4 @@
-import {
-  differenceInDays,
-  differenceInHours,
-  differenceInMilliseconds,
-  format,
-} from "date-fns";
-import { Timestamp } from "firebase/firestore";
+import { differenceInMilliseconds, format } from "date-fns";
 
 export function toCurrency(value: number) {
   if (typeof value !== "number") {

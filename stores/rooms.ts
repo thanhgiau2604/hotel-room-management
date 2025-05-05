@@ -4,6 +4,7 @@ import {
   orderBy,
   query,
   setDoc,
+  where,
   type Timestamp,
 } from "firebase/firestore";
 import { defineStore } from "pinia";
@@ -29,6 +30,8 @@ export type Room = {
   updated_at: Timestamp;
 };
 
+export type FilterRoomType = "all" | "ac" | "fan";
+
 export const useRoomStore = defineStore("rooms", {
   state: () => ({
     rooms: [] as Room[],
@@ -44,8 +47,34 @@ export const useRoomStore = defineStore("rooms", {
       | "changeRoomType"
       | "updateCustomerInfo"
     )[],
+    filter: {
+      type: undefined as FilterRoomType | undefined,
+    },
   }),
   actions: {
+    async updateFilterType(type: FilterRoomType) {
+      this.fetchRoom(type);
+      this.filter.type = type;
+    },
+    async getStats() {
+      const { $roomsRef } = useNuxtApp();
+      let roomsQuery = query($roomsRef, orderBy("created_at", "asc"));
+      const querySnapshot = await getDocs(roomsQuery);
+      const rooms = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Room[];
+
+      this.stats = {
+        fan: rooms.filter(
+          (r) => r.room_type === "fan" && r.status === "available"
+        ).length,
+        ac: rooms.filter(
+          (r) => r.room_type === "ac" && r.status === "available"
+        ).length,
+        using: rooms.filter((r) => r.status === "being_used").length,
+      };
+    },
     async updateOneRoom(roomData: Partial<Room>, roomId: string) {
       const { $roomsRef } = useNuxtApp();
       const documentRef = doc($roomsRef, roomId);
@@ -57,42 +86,32 @@ export const useRoomStore = defineStore("rooms", {
       }
       return error;
     },
-    async fetchRoom() {
+    async fetchRoom(filterType?: "all" | "ac" | "fan") {
       this.loading.push("fetchRooms");
       const { $roomsRef } = useNuxtApp();
-      const roomsQuery = query($roomsRef, orderBy("created_at", "asc"));
+      const roomType = filterType || this.filter.type || "all";
+
+      let roomsQuery = query($roomsRef, orderBy("created_at", "asc"));
+
+      if (roomType === "ac" || roomType === "fan") {
+        roomsQuery = query(
+          $roomsRef,
+          where("room_type", "==", roomType),
+          orderBy("created_at", "asc")
+        );
+      }
+
       const querySnapshot = await getDocs(roomsQuery);
       this.rooms = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       })) as Room[];
 
-      // stats
-      const fanAvailable = [...this.rooms].filter(
-        (r) => r.room_type === "fan" && r.status === "available"
-      ).length;
-      const acAvailable = [...this.rooms].filter(
-        (r) => r.room_type === "ac" && r.status === "available"
-      ).length;
-      const using = [...this.rooms].filter(
-        (r) => r.status === "being_used"
-      ).length;
-
       this.loading.splice(this.loading.indexOf("fetchRooms"));
-
-      this.stats = {
-        fan: fanAvailable,
-        ac: acAvailable,
-        using,
-      };
     },
-    async changeRoomStatus(roomId: string, status: Room["status"]) {
+    async changeRoomStatus(roomId: string, status: RoomStatus) {
+      // add loading
       this.loading.push("changeRoomStatus");
-      const newRooms = [...this.rooms].map((r) =>
-        r.id === roomId ? { ...r, status } : r
-      );
-
-      this.rooms = newRooms;
 
       // update document firestore
       const { $roomsRef } = useNuxtApp();
@@ -101,17 +120,18 @@ export const useRoomStore = defineStore("rooms", {
         status,
       });
 
+      // refresh data after the update
+      this.fetchRoom();
+      this.getStats();
+
+      // remove loading
       this.loading.splice(this.loading.indexOf("changeRoomStatus"));
 
       return error;
     },
     async changeRoomType(roomId: string, type: Room["room_type"]) {
+      // add loading
       this.loading.push("changeRoomType");
-
-      const newRooms = [...this.rooms].map((r) =>
-        r.id === roomId ? { ...r, room_type: type } : r
-      );
-      this.rooms = newRooms;
 
       // update document firestore
       const { $roomsRef } = useNuxtApp();
@@ -120,6 +140,11 @@ export const useRoomStore = defineStore("rooms", {
         room_type: type,
       });
 
+      // refresh data after the update
+      this.fetchRoom();
+      this.getStats();
+
+      // remove loading
       this.loading.splice(this.loading.indexOf("changeRoomType"));
 
       return error;
@@ -129,6 +154,8 @@ export const useRoomStore = defineStore("rooms", {
       info: CustomerInfo
     ): Promise<string | null> {
       const { $roomsRef } = useNuxtApp();
+
+      // add loading
       this.loading.push("updateCustomerInfo");
 
       try {
@@ -141,11 +168,15 @@ export const useRoomStore = defineStore("rooms", {
           { merge: true }
         );
 
+        // refresh data after the update
         this.fetchRoom();
+        this.getStats();
+
         return null;
       } catch (error) {
         return (error as Error).message;
       } finally {
+        // remove loading
         this.loading.splice(this.loading.indexOf("updateCustomerInfo"));
       }
     },

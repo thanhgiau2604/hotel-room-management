@@ -59,13 +59,6 @@ const visibleConfig = ref(false);
 const visibleCustomer = ref(false);
 const visiblePayment = ref(false);
 
-// Computed statistics
-const stats = computed(() => ({
-  available: rooms.value.filter((r) => r.status === "available").length,
-  used: rooms.value.filter((r) => r.status === "being_used").length,
-  upcoming: 2,
-}));
-
 // Methods
 const handleEditRoom = (room: Room) => {
   visibleConfig.value = true;
@@ -101,6 +94,7 @@ const handleStatusChange = async (
       life: 5000,
     });
   }
+
   roomStore.fetchRoom();
 };
 
@@ -116,8 +110,14 @@ watch(visibleConfig, () => {
 .list-leave-active {
   transition: all 0.6s ease;
 }
+
 .list-enter-from,
 .list-leave-to {
   opacity: 0;
+  transform: translateX(30px);
+}
+
+.list-leave-active {
+  position: absolute;
 }
 </style>

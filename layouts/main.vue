@@ -18,6 +18,6 @@ import { useRoomStore } from "~/stores/rooms";
 const roomStore = useRoomStore();
 
 onMounted(async () => {
-  await roomStore.fetchRoom();
+  await Promise.all([roomStore.fetchRoom(), roomStore.getStats()]);
 });
 </script>
